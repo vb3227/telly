@@ -1,7 +1,7 @@
 # Validated direct runtime dependencies; Python 3.11+.
 mcp==2.3.0
 httpx==0.28.0
-Pillow==11.1.0
+Pillow==13.0.0
 pyserial==3.5
 RestrictedPython==8.5
 uvicorn==0.54.0

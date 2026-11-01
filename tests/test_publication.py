@@ -11,7 +11,7 @@ from check_repository import scan_text
 class PublicationTests(unittest.TestCase):
     def test_manifest_excludes_secrets_runtime_and_generated_files(self):
         with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
+            root = Path(folder).resolve()
             for name in [
                 "README.md",
                 "include/board_config.example.h",
