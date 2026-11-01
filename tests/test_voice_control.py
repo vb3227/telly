@@ -174,6 +174,7 @@ class VoiceControlTests(unittest.TestCase):
         }
         valid = dict(invalid, program_json='{"steps":[{"op":"display.clear","color":"#00FF00"}]}')
         runner = CodexRunner(Path.cwd(), "", "")
+        runner.executable = "codex-test"
         runner.session = Mock()
         runner.session.generate.side_effect = [invalid, valid]
         with patch.dict("os.environ", {"TELLY_CODEX_TRANSPORT": "app-server"}):
@@ -190,6 +191,7 @@ class VoiceControlTests(unittest.TestCase):
             "reply": "",
         }
         runner = CodexRunner(Path.cwd(), "", "")
+        runner.executable = "codex-test"
         runner.session = Mock()
         runner.session.generate.return_value = plan
         with patch.dict("os.environ", {"TELLY_CODEX_TRANSPORT": "app-server"}):

@@ -16,6 +16,6 @@ HTTPS verifies server certificates. The outbound relay avoids exposing the board
 
 ## Reporting
 
-Do not put credentials or private media in public issues. Contact the repository owner through a private channel agreed with them. No dedicated security contact or supported-release policy has been established for this prototype.
+Do not put credentials or private media in public issues. Use [GitHub private vulnerability reporting](https://github.com/vb3227/telly/security/advisories/new) to contact the owner privately. No supported-release policy has been established for this prototype.
 
 The publication checker catches known local credentials, common key formats, workstation paths and accidental private-network addresses in the explicit release set. It is a practical preflight, not a comprehensive secret scanner or security audit. Review the Git diff and run an independent scanner before making a repository public.

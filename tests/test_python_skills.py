@@ -167,6 +167,7 @@ print("finished", value)
         }
         valid = dict(invalid, program_json=json.dumps({"source": "result = 42"}))
         runner = CodexRunner(self.project, "", "")
+        runner.executable = "codex-test"
         runner.session = Mock()
         runner.session.generate.side_effect = [invalid, valid]
         with patch.dict("os.environ", {"TELLY_CODEX_TRANSPORT": "app-server"}):
@@ -184,6 +185,7 @@ print("finished", value)
             "reply": "",
         }
         runner = CodexRunner(self.project, "", "")
+        runner.executable = "codex-test"
         runner.session = Mock()
         runner.session.generate.return_value = plan
         with patch.dict("os.environ", {"TELLY_CODEX_TRANSPORT": "app-server"}):
