@@ -1,0 +1,37 @@
+# Device credentials and local runtime
+/include/board_config.h
+/.telly/
+/.agents/
+/.codex/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Build environments and generated output
+.pio/
+.venv/
+venv/
+work/
+dist/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+coverage.xml
+.coverage
+htmlcov/
+*.log
+
+# Editor and OS state
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local editor compilation database
+/compile_commands.json

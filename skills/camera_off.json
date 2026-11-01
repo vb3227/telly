@@ -1,0 +1,14 @@
+{
+  "name": "camera_off",
+  "voice_phrase": "stop camera",
+  "aliases": [
+    "выключи камеру"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "camera.stop"
+      }
+    ]
+  }
+}

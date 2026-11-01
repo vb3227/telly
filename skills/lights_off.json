@@ -1,0 +1,14 @@
+{
+  "name": "lights_off",
+  "voice_phrase": "lights off",
+  "aliases": [
+    "выключи свет"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "rgb.off"
+      }
+    ]
+  }
+}

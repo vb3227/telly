@@ -1,0 +1,2 @@
+# Optional CPU speech recognition; install alongside requirements.txt.
+faster-whisper==1.2.1

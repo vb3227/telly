@@ -1,0 +1,18 @@
+name: Feature request
+description: Propose an improvement or a hardware adapter.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: use-case
+    attributes:
+      label: What would this make possible?
+      description: Describe the user problem and a concrete example.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: For hardware, include the device interface and driver requirements. Do not include credentials.
+    validations:
+      required: true

@@ -1,0 +1,14 @@
+{
+  "name": "take_photo",
+  "voice_phrase": "take photo",
+  "aliases": [
+    "сделай фото"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "camera.photo"
+      }
+    ]
+  }
+}

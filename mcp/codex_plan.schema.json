@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "skill",
+        "python_skill",
+        "answer",
+        "cpp_prepared"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "voice_phrase": {
+      "type": "string"
+    },
+    "program_json": {
+      "type": "string"
+    },
+    "reply": {
+      "type": "string"
+    },
+    "short_commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 4
+    }
+  },
+  "required": [
+    "kind",
+    "name",
+    "voice_phrase",
+    "program_json",
+    "reply",
+    "short_commands"
+  ]
+}

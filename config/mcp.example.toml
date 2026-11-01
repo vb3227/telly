@@ -1,0 +1,14 @@
+# Replace the absolute path and placeholder tokens; keep the real config local.
+[mcp_servers.esp32-school-robot]
+command = "C:/projects/telly/.venv/Scripts/python.exe"
+args = ["C:/projects/telly/mcp/server.py"]
+
+[mcp_servers.esp32-school-robot.env]
+UNIHIKER_CONNECTION = "relay"
+UNIHIKER_BOARD_TOKEN = "REPLACE_WITH_BOARD_TOKEN"
+TELLY_VOICE_GATEWAY_TOKEN = "REPLACE_WITH_GATEWAY_TOKEN"
+# Start the standalone gateway with its own private environment first.
+# If this MCP process must start the gateway itself, configure its Groq key:
+# GROQ_API_KEY = "REPLACE_WITH_YOUR_GROQ_KEY"
+# run_gateway.py --codex-config imports ONLY the three variables above.
+# See docs/GETTING_STARTED_RU.md for models, local STT and non-default ports.

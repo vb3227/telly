@@ -1,0 +1,9 @@
+{
+  "name": "python_light_range",
+  "runtime": "python",
+  "voice_phrase": "light range",
+  "aliases": [
+    "диапазон света"
+  ],
+  "sha256": "e869cc1ebc83d6d4d960b8e2ec782a6c82391ef37f4001e3f9ae9e34ce1d70d2"
+}

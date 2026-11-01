@@ -1,0 +1,14 @@
+{
+  "name": "record_video",
+  "voice_phrase": "record video",
+  "aliases": [
+    "запиши видео"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "camera.record"
+      }
+    ]
+  }
+}

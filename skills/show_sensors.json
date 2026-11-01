@@ -1,0 +1,14 @@
+{
+  "name": "show_sensors",
+  "voice_phrase": "show sensors",
+  "aliases": [
+    "покажи датчики"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "sensor.read.display"
+      }
+    ]
+  }
+}

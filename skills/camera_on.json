@@ -1,0 +1,15 @@
+{
+  "name": "camera_on",
+  "voice_phrase": "start camera",
+  "aliases": [
+    "включи камеру"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "camera.preview",
+        "duration_ms": 0
+      }
+    ]
+  }
+}

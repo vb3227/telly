@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+  <title id="title">Telly — voice to skills to hardware</title>
+  <desc id="description">A green voice waveform connects to a programmable hardware board on a dark background.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#081914"/><stop offset="1" stop-color="#07100e"/>
+    </linearGradient>
+    <linearGradient id="green" x2="1">
+      <stop stop-color="#36dc95"/><stop offset="1" stop-color="#adffd3"/>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#153329" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="360" rx="22" fill="url(#background)"/>
+  <rect width="1200" height="360" rx="22" fill="url(#grid)" opacity="0.5"/>
+  <rect x="48" y="42" width="168" height="28" rx="14" fill="#12392a"/>
+  <circle cx="63" cy="56" r="4" fill="#6df3b0"/>
+  <text x="76" y="61" fill="#9deec3" font-family="Segoe UI,Arial,sans-serif" font-size="12" letter-spacing="2">HARDWARE + AI</text>
+  <text x="44" y="176" fill="#f0fff6" font-family="Segoe UI,Arial,sans-serif" font-size="102" font-weight="700" letter-spacing="-5">telly<tspan fill="#6df3b0">.</tspan></text>
+  <text x="49" y="226" fill="#c2dfcf" font-family="Segoe UI,Arial,sans-serif" font-size="25">Your voice. Reusable skills. Real hardware.</text>
+  <text x="49" y="280" fill="#7aa58f" font-family="Segoe UI,Arial,sans-serif" font-size="15" letter-spacing="2">UNIHIKER K10  /  MCP  /  CODEX</text>
+  <path d="M651 178h45m87 0h51" fill="none" stroke="#3b8460" stroke-width="2" stroke-dasharray="5 7"/>
+  <g stroke="url(#green)" stroke-width="6" stroke-linecap="round">
+    <path d="M708 168v20m12-34v48m12-66v84m12-100v116m12-92v68m12-48v28"/>
+  </g>
+  <rect x="844" y="64" width="270" height="232" rx="24" fill="#0c2119" stroke="#2b7650" stroke-width="2"/>
+  <rect x="867" y="87" width="224" height="151" rx="11" fill="#06110c" stroke="#234333"/>
+  <text x="885" y="113" fill="#6df3b0" font-family="Consolas,monospace" font-size="12">TELLY / SKILL READY</text>
+  <g fill="#6df3b0">
+    <rect x="886" y="164" width="7" height="17" rx="3"/><rect x="899" y="151" width="7" height="43" rx="3"/>
+    <rect x="912" y="137" width="7" height="71" rx="3"/><rect x="925" y="147" width="7" height="51" rx="3"/>
+    <rect x="938" y="157" width="7" height="31" rx="3"/><rect x="951" y="145" width="7" height="55" rx="3"/>
+    <rect x="964" y="132" width="7" height="81" rx="3"/><rect x="977" y="143" width="7" height="59" rx="3"/>
+    <rect x="990" y="155" width="7" height="35" rx="3"/><rect x="1003" y="164" width="7" height="17" rx="3"/>
+  </g>
+  <circle cx="890" cy="266" r="9" fill="#6df3b0"/>
+  <circle cx="923" cy="266" r="9" fill="#244c36"/>
+  <rect x="1030" y="258" width="49" height="15" rx="5" fill="#244c36"/>
+  <path d="M854 309h248" stroke="#1a3f2b" stroke-width="3" stroke-linecap="round"/>
+</svg>

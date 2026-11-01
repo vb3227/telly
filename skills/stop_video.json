@@ -1,0 +1,14 @@
+{
+  "name": "stop_video",
+  "voice_phrase": "stop video",
+  "aliases": [
+    "останови видео"
+  ],
+  "program": {
+    "steps": [
+      {
+        "op": "camera.finish"
+      }
+    ]
+  }
+}
