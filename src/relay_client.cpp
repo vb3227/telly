@@ -23,7 +23,12 @@ constexpr size_t MAX_URL = 128;
 std::atomic<int> relayPhase{0};
 std::atomic<int> lastPollStatus{0};
 
-bool allowedPath(const String &path) {
+bool allowedPath(const String &requestPath) {
+    if (requestPath.length() > 256) return false;
+    for (char c : requestPath) if (static_cast<unsigned char>(c) < 32) return false;
+    String path = requestPath;
+    int query = path.indexOf('?');
+    if (query >= 0) path = path.substring(0, query);
     return path=="/ping" || path=="/status" || path=="/run" || path=="/stop" || path=="/reset" ||
         path=="/voice/start" || path=="/voice/finish" || path=="/voice/latest" || path=="/voice/result" || path=="/voice/activity" || path=="/voice/activity/preview" ||
         path=="/skills/delete" || path=="/skills/list" || path=="/skills/install" || path=="/skills/run" ||

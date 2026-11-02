@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "boot_animation.h"
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
@@ -1206,31 +1207,41 @@ void setup() {
     Serial.println("\nUNIHIKER K10 C++ MCP supervisor starting");
 
     k10.begin();
-    initSecureRequests();
-    initVoiceGate();
-    initAudioCapture();
-    initVoiceTranscription();
-    skillStoreReady = skillStore.begin("tellyskills", false);
-    if (skillStoreReady) registerVoiceSkills();
-    Serial.printf("Persistent skill storage: %s (%u saved voice skills)\n", skillStoreReady ? "ready" : "unavailable", (unsigned)registeredSkillCount);
     k10.initScreen(SCREEN_DIR);
     k10.creatCanvas();
     k10.setScreenBackground(0x000000);
-    drawScreenText("K10 C++ MCP");
-    k10.canvas->updateCanvas();
+    showBootProgress(5, "Display ready");
+    initSecureRequests();
+    showBootProgress(15, "Security ready");
+    initVoiceGate();
+    initAudioCapture();
+    initVoiceTranscription();
+    showBootProgress(30, "Audio ready");
+    skillStoreReady = skillStore.begin("tellyskills", false);
+    if (skillStoreReady) registerVoiceSkills();
+    Serial.printf("Persistent skill storage: %s (%u saved voice skills)\n", skillStoreReady ? "ready" : "unavailable", (unsigned)registeredSkillCount);
+    showBootProgress(45, "Storage ready");
 
     startVoiceWorker();
     initMediaCapture();
+    showBootProgress(60, "Starting ASR");
     startAsrIfNeeded();
     Serial.println("[buttons] A toggles voice; B is unassigned; max 10s");
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     lastWiFiAttempt = millis();
 
+    showBootProgress(80, "Starting network");
     startRelayClient();
     configureServer(mainServer, false);
     configureServer(rescueServer, true);
     Serial.printf("HTTP control listening on %u; rescue on %u\n", MAIN_PORT, RESCUE_PORT);
+    showBootProgress(100, "Core ready");
+    delay(400);
+    k10.canvas->canvasClear();
+    k10.canvas->canvasRectangle(0,0,240,320,0x000000,0x000000,true);
+    drawScreenText("Ready / Wi-Fi...");
+    k10.canvas->updateCanvas();
 }
 
 void loop() {
