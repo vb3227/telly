@@ -15,6 +15,64 @@ import urllib.request
 
 URL_PATTERN = re.compile(r"https://[a-z0-9-]+\.trycloudflare\.com\b")
 DEFAULT_CLOUDFLARED = r"C:\Program Files (x86)\cloudflared\cloudflared.exe"
+METRICS_PATTERN = re.compile(r"127\.0\.0\.1:(\d+)/metrics")
+RESTART = 75
+
+
+class TunnelWatchdog:
+    def __init__(self, grace=45):
+        self.grace = grace
+        self.failed_at = None
+
+    def observe(self, ready, now):
+        if ready:
+            self.failed_at = None
+        elif self.failed_at is None:
+            self.failed_at = now
+        return self.failed_at is not None and now - self.failed_at >= self.grace
+
+
+def endpoint_ready(url):
+    try:
+        with urllib.request.urlopen(url, timeout=3) as response:
+            return response.status == 200
+    except (OSError, ValueError):
+        return False
+
+
+def send_board_url(port, url):
+    if not port:
+        return False
+    try:
+        import serial
+
+        board = serial.Serial(port=None, baudrate=115200, timeout=0.3, write_timeout=3)
+        board.dtr = False
+        board.rts = False
+        board.port = port
+        with board:
+            time.sleep(5)
+            board.write(
+                ("TELLY_TIME " + str(int(time.time())) + "\nTELLY_RELAY_URL " + url + "\n").encode(
+                    "ascii"
+                )
+            )
+            board.flush()
+            reply = ""
+            deadline = time.monotonic() + 12
+            while time.monotonic() < deadline:
+                reply = (reply + board.readline().decode("utf-8", errors="replace"))[-4096:]
+                if "Relay URL saved: " + url in reply:
+                    print("Board saved URL through {}.".format(port), flush=True)
+                    return True
+        print("USB update not acknowledged; will retry.", file=sys.stderr, flush=True)
+    except Exception as exc:
+        print(
+            "USB update pending (close Serial Monitor): {}".format(type(exc).__name__),
+            file=sys.stderr,
+            flush=True,
+        )
+    return False
 
 
 def find_port(requested: str | None) -> str | None:
@@ -33,18 +91,7 @@ def find_port(requested: str | None) -> str | None:
         return None
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", help="K10 USB serial port, for example COM5")
-    parser.add_argument("--gateway-port", type=int, default=8767)
-    parser.add_argument(
-        "--protocol",
-        choices=("auto", "quic", "http2"),
-        default="auto",
-        help="Use http2 if the network blocks UDP",
-    )
-    parser.add_argument("--cloudflared", default=shutil.which("cloudflared") or DEFAULT_CLOUDFLARED)
-    args = parser.parse_args()
+def run_tunnel(args) -> int:
     try:
         with urllib.request.urlopen(
             "http://127.0.0.1:{}/health".format(args.gateway_port), timeout=3
@@ -71,6 +118,8 @@ def main() -> int:
             "--url",
             "http://127.0.0.1:{}".format(args.gateway_port),
             "--no-autoupdate",
+            "--metrics",
+            "127.0.0.1:0",
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.PIPE,
@@ -90,6 +139,7 @@ def main() -> int:
     threading.Thread(target=read_output, daemon=True).start()
     url = None
     registered = False
+    readiness = None
     deadline = time.monotonic() + 90
     try:
         while time.monotonic() < deadline and process.poll() is None:
@@ -100,6 +150,9 @@ def main() -> int:
             match = URL_PATTERN.search(line)
             if match:
                 url = match.group(0)
+            metrics = METRICS_PATTERN.search(line)
+            if metrics and 1 <= int(metrics.group(1)) <= 65535:
+                readiness = "http://127.0.0.1:" + metrics.group(1) + "/ready"
             if "Registered tunnel connection" in line:
                 registered = True
             if url and registered:
@@ -111,51 +164,11 @@ def main() -> int:
                 "Cloudflare did not establish a tunnel. Try --protocol http2 or check outbound port 7844.",
                 file=sys.stderr,
             )
-            return 2
+            return RESTART
         print("Temporary relay URL: {}".format(url), flush=True)
         port = find_port(args.port)
-        if port:
-            try:
-                import serial
-
-                board = serial.Serial(port=None, baudrate=115200, timeout=2, write_timeout=3)
-                board.dtr = False
-                board.rts = False
-                board.port = port
-                with board:
-                    time.sleep(5)
-                    board.write(
-                        (
-                            "TELLY_TIME "
-                            + str(int(time.time()))
-                            + "\nTELLY_RELAY_URL "
-                            + url
-                            + "\n"
-                        ).encode("ascii")
-                    )
-                    board.flush()
-                    reply = ""
-                    ack_deadline = time.monotonic() + 12
-                    while (
-                        time.monotonic() < ack_deadline and ("Relay URL saved: " + url) not in reply
-                    ):
-                        reply += board.readline().decode("utf-8", errors="replace")
-                if ("Relay URL saved: " + url) not in reply:
-                    print(
-                        "USB command sent to {}; verify the board Serial Monitor acknowledged it.".format(
-                            port
-                        ),
-                        file=sys.stderr,
-                    )
-                else:
-                    print("Board saved URL through {}.".format(port), flush=True)
-            except Exception as exc:
-                print("Could not send URL through {}: {}".format(port, exc), file=sys.stderr)
-                print(
-                    "Send this line manually at 115200 baud: TELLY_RELAY_URL {}".format(url),
-                    flush=True,
-                )
-        else:
+        configured = send_board_url(port, url)
+        if not port:
             print(
                 "Send this line to board Serial Monitor at 115200 baud: TELLY_RELAY_URL {}".format(
                     url
@@ -163,8 +176,29 @@ def main() -> int:
                 flush=True,
             )
             print("Use --port COMx for automatic USB setup.", file=sys.stderr)
-        print("Tunnel is active; press Ctrl+C to stop it.", flush=True)
-        return process.wait()
+        print("Tunnel watchdog active; press Ctrl+C to stop it.", flush=True)
+        watchdog = TunnelWatchdog()
+        next_check = time.monotonic() + 10
+        while process.poll() is None:
+            try:
+                line = lines.get(timeout=1)
+                if "error" in line.lower():
+                    print(line.rstrip(), file=sys.stderr, flush=True)
+            except queue.Empty:
+                pass
+            now = time.monotonic()
+            if now < next_check:
+                continue
+            next_check = now + 10
+            if watchdog.observe(endpoint_ready(readiness or url + "/health"), now):
+                print(
+                    "Tunnel lost its edge connection; restarting and refreshing board URL.",
+                    flush=True,
+                )
+                return RESTART
+            if not configured:
+                configured = send_board_url(port or find_port(args.port), url)
+        return RESTART
     except KeyboardInterrupt:
         return 0
     finally:
@@ -174,6 +208,25 @@ def main() -> int:
                 process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 process.kill()
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--port", help="K10 USB serial port")
+    parser.add_argument("--gateway-port", type=int, default=8767)
+    parser.add_argument("--protocol", choices=("auto", "quic", "http2"), default="auto")
+    parser.add_argument("--cloudflared", default=shutil.which("cloudflared") or DEFAULT_CLOUDFLARED)
+    args = parser.parse_args()
+    if not 1024 <= args.gateway_port <= 65534:
+        parser.error("Gateway port must be 1024..65534")
+    try:
+        while True:
+            result = run_tunnel(args)
+            if result != RESTART:
+                return result
+            time.sleep(5)
+    except KeyboardInterrupt:
+        return 0
 
 
 if __name__ == "__main__":

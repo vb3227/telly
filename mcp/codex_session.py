@@ -33,6 +33,8 @@ class CodexSession:
     def close(self):
         process = self.process
         self.process = None
+        self.thread_id = None
+        self.turn_id = None
         if process and process.poll() is None:
             process.terminate()
             try:
@@ -92,7 +94,12 @@ class CodexSession:
                 self.events.append(message)
 
     def start(self):
-        if self.process and self.process.poll() is None:
+        if (
+            self.process
+            and self.process.poll() is None
+            and isinstance(self.thread_id, str)
+            and self.thread_id
+        ):
             return
         self.close()
         self.messages = queue.Queue()
@@ -147,6 +154,15 @@ class CodexSession:
                 target.put(None)
 
         threading.Thread(target=read, name="telly-codex-protocol", daemon=True).start()
+        try:
+            self._initialize_thread()
+        except Exception:
+            # A live subprocess is not a usable session until thread/start or
+            # thread/resume succeeds. Never reuse a half-initialized session.
+            self.close()
+            raise
+
+    def _initialize_thread(self):
         self._rpc("initialize", {"clientInfo": {"name": "telly_worker", "version": "1.0.0"}})
         self._send({"method": "initialized", "params": {}})
         params = {
@@ -173,7 +189,10 @@ class CodexSession:
             result = self._rpc("thread/resume", dict(params, threadId=stored, excludeTurns=True))
         else:
             result = self._rpc("thread/start", params)
-        self.thread_id = result["thread"]["id"]
+        thread_id = (result.get("thread") or {}).get("id")
+        if not isinstance(thread_id, str) or not thread_id:
+            raise ValueError("Codex did not return a valid thread ID")
+        self.thread_id = thread_id
         if not self.ephemeral:
             self.state.parent.mkdir(exist_ok=True)
             self.state.write_text(
